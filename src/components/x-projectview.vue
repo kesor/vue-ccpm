@@ -1,19 +1,19 @@
 <template>
   <div class="container">
     <x-tasklist></x-tasklist>
-    <x-gantt></x-gantt>
+    <x-pert></x-pert>
   </div>
 </template>
 
 <script>
 import xTasklist from './x-tasklist';
-import xGantt from './x-gantt';
+import xPert from './x-pert';
 
 export default {
   name: 'x-projectview',
   components: {
     xTasklist,
-    xGantt,
+    xPert,
   },
 };
 </script>
