@@ -22,11 +22,16 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import xEditable from './x-editable';
 
 export default {
   name: 'x-tasklist',
-  props: ['tasks'],
+  computed: {
+    ...mapGetters({
+      tasks: 'tasklist',
+    }),
+  },
   components: {
     xEditable,
   },

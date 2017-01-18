@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <x-tasklist :tasks="tasks"></x-tasklist>
+    <x-tasklist></x-tasklist>
     <x-gantt></x-gantt>
   </div>
 </template>
@@ -11,7 +11,6 @@ import xGantt from './x-gantt';
 
 export default {
   name: 'x-projectview',
-  props: ['tasks'],
   components: {
     xTasklist,
     xGantt,
