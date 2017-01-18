@@ -37,7 +37,7 @@ export default {
       tasks: 'tasklist',
     }),
     nodes() {
-      return this.tasks.map(i => ({ id: i.id, label: i.id, r: 20, dependon: i.dependon }));
+      return this.tasks.map(i => ({ id: i.id, r: 20, dependon: i.dependon }));
     },
     links() {
       const nodesCache = this.nodes;
@@ -49,8 +49,8 @@ export default {
             links.push({
               source: nodesCache[source].index,
               target: nodesCache[target].index,
-              distance: 60,
-              strength: 0.0001,
+              distance: 50,
+              strength: 1,
             });
           }
         }
@@ -93,12 +93,12 @@ export default {
     this.width = this.$el.parentNode.getBoundingClientRect().width;
     // event handler when this component is mounted for the first time!
     this.forceSimulation = d3.forceSimulation(this.nodes)
-      .force('links', d3.forceLink(this.links).iterations(6))
-      .force('collide', d3.forceCollide(d => d.r + 8).iterations(6))
-      .force('charge', d3.forceManyBody().strength(-150).distanceMax(1))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2))
-      .force('y', d3.forceY(this.height / 2))
       .force('x', d3.forceX(this.width / 2))
+      .force('y', d3.forceY(this.height / 2))
+      .force('links', d3.forceLink())
+      .force('collide', d3.forceCollide(d => d.r + 8))
+      .force('charge', d3.forceManyBody())
       ;
     this.linkPathGroup = d3.select(this.$el)
       .append('g')
@@ -134,9 +134,9 @@ export default {
     this.nodePathGroup
       .append('text')
       .attr('text-anchor', 'middle')
-      .attr('dx', '')
+      .attr('dx', '0')
       .attr('dy', '0.25em')
-      .text(d => d.label)
+      .text(d => d.id)
       ;
 
     this.forceSimulation
@@ -144,10 +144,21 @@ export default {
       .on('tick', this.ticked)
       ;
 
+    // tweak the forces working in the simulation
     this.forceSimulation.force('links')
       .links(this.links)
       .distance(d => d.distance) // distance of each node to another
       .strength(d => d.strength)
+      .iterations(this.links.length)
+      ;
+    this.forceSimulation.force('x')
+      .strength(0.01)
+      ;
+    this.forceSimulation.force('y')
+      .strength(0.01)
+      ;
+    this.forceSimulation.force('charge')
+      .strength(0.001)
       ;
   },
 };
