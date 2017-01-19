@@ -3,11 +3,11 @@
     <svg:defs>
 
       <svg:marker id="start-arrow" viewBox="0 -5 10 10" refX=4 markerWidth=3 markerHeight=3 orient="auto">
-        <svg:path d="M10,-5L0,0L10,5" fill="#000" />
+        <svg:path d="M10,-5L0,0L10,5" />
       </svg:marker>
 
-      <svg:marker id="end-arrow" viewBox="0 -5 10 10" refX=6 markerWidth=3 markerHeight=3 orient="auto">
-        <svg:path d="M0,-5L10,0L0,5" fill="#000" />
+      <svg:marker id="end-arrow" viewBox="0 -5 10 10" refX=8 markerWidth=4 markerHeight=4 orient="auto">
+        <svg:path d="M0,-5L10,0L0,5" />
       </svg:marker>
 
       <!-- line displayed when dragging across two nodes -->
@@ -27,6 +27,7 @@ export default {
     return {
       width: 600,
       height: 300,
+      radius: 20,
       linkPathGroup: null,
       nodePathGroup: null,
       forceSimulation: null,
@@ -37,7 +38,7 @@ export default {
       tasks: 'tasklist',
     }),
     nodes() {
-      return this.tasks.map(i => ({ id: i.id, r: 20, dependon: i.dependon }));
+      return this.tasks.map(i => ({ id: i.id, r: this.radius, dependon: i.dependon }));
     },
     links() {
       const nodesCache = this.nodes;
@@ -59,12 +60,25 @@ export default {
     },
   },
   methods: {
+    deltaRadius(d) {
+      // calculate the x,y point just outside the node circle
+      const dx = d.target.x - d.source.x;
+      const dy = d.target.y - d.source.y;
+      const gamma1 = Math.atan2(-dy, -dx);
+      const gamma2 = Math.atan2(dy, dx);
+      const tx1 = d.source.x - (Math.cos(gamma1) * this.radius);
+      const ty1 = d.source.y - (Math.sin(gamma1) * this.radius);
+      const tx2 = d.target.x - (Math.cos(gamma2) * (this.radius + 2));
+      const ty2 = d.target.y - (Math.sin(gamma2) * (this.radius + 2));
+      return { tx1, ty1, tx2, ty2 };
+    },
     ticked() {
+      // offset for links outside the radius, to make the arroheads show
       this.linkPathGroup
-        .attr('x1', d => d.source.x)
-        .attr('y1', d => d.source.y)
-        .attr('x2', d => d.target.x)
-        .attr('y2', d => d.target.y)
+        .attr('x1', d => this.deltaRadius(d).tx1)
+        .attr('y1', d => this.deltaRadius(d).ty1)
+        .attr('x2', d => this.deltaRadius(d).tx2)
+        .attr('y2', d => this.deltaRadius(d).ty2)
         ;
       this.nodePathGroup
         .attr('transform', d => `translate(${[d.x, d.y]})`)
@@ -100,15 +114,7 @@ export default {
       .force('collide', d3.forceCollide(d => d.r + 8))
       .force('charge', d3.forceManyBody())
       ;
-    this.linkPathGroup = d3.select(this.$el)
-      .append('g')
-      .attr('class', 'links')
-      .selectAll('line')
-      .data(this.links)
-      .enter()
-      .append('line')
-      .attr('stroke', 'black')
-      ;
+    // NODES! (groups)
     this.nodePathGroup = d3.select(this.$el)
       .append('g')
       .attr('class', 'nodes')
@@ -123,14 +129,13 @@ export default {
         .on('end', this.dragEnd)
       )
       ;
+    // NODES! (circles)
     this.nodePathGroup.append('circle')
       .attr('r', d => d.r)
       .attr('fill', 'lightblue')
       .attr('stroke', 'black')
       ;
-    this.nodePathGroup.append('title')
-      .text(d => d.label)
-      ;
+    // NODES! (labels)
     this.nodePathGroup
       .append('text')
       .attr('text-anchor', 'middle')
@@ -138,13 +143,26 @@ export default {
       .attr('dy', '0.25em')
       .text(d => d.id)
       ;
+    // LINKS!
+    this.linkPathGroup = d3.select(this.$el)
+      .append('g')
+      .attr('class', 'links')
+      .selectAll('line')
+      .data(this.links)
+      .enter()
+      .append('line')
+      .attr('stroke', 'black')
+      .attr('marker-end', 'url(#end-arrow)')
+      .attr('style', 'stroke-width:2')
+      ;
 
+    // TICK TICK TICK!
     this.forceSimulation
       .nodes(this.nodes)
       .on('tick', this.ticked)
       ;
 
-    // tweak the forces working in the simulation
+    // FORCES! Tweak the forces working in the simulation
     this.forceSimulation.force('links')
       .links(this.links)
       .distance(d => d.distance) // distance of each node to another
