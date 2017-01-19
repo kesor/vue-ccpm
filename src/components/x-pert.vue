@@ -114,6 +114,20 @@ export default {
       .force('collide', d3.forceCollide(d => d.r + 8))
       .force('charge', d3.forceManyBody())
       ;
+
+    // LINKS! Rendered first, even though they no longer overlap nodes.
+    this.linkPathGroup = d3.select(this.$el)
+      .append('g')
+      .attr('class', 'links')
+      .selectAll('line')
+      .data(this.links)
+      .enter()
+      .append('line')
+      .attr('stroke', 'black')
+      .attr('marker-end', 'url(#end-arrow)')
+      .attr('style', 'stroke-width:2')
+      ;
+
     // NODES! (groups)
     this.nodePathGroup = d3.select(this.$el)
       .append('g')
@@ -142,18 +156,6 @@ export default {
       .attr('dx', '0')
       .attr('dy', '0.25em')
       .text(d => d.id)
-      ;
-    // LINKS!
-    this.linkPathGroup = d3.select(this.$el)
-      .append('g')
-      .attr('class', 'links')
-      .selectAll('line')
-      .data(this.links)
-      .enter()
-      .append('line')
-      .attr('stroke', 'black')
-      .attr('marker-end', 'url(#end-arrow)')
-      .attr('style', 'stroke-width:2')
       ;
 
     // TICK TICK TICK!
