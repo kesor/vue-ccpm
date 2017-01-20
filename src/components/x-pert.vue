@@ -50,8 +50,8 @@ export default {
             links.push({
               source: nodesCache[source].index,
               target: nodesCache[target].index,
-              distance: 150,
-              strength: 0.1,
+              distance: 200,
+              strength: 1,
             });
           }
         }
@@ -61,43 +61,51 @@ export default {
   },
   methods: {
     deltaRadius(d) {
+      // TODO: Change target and source before calculating things,
+      // since the rectangle is now transposed ...
+      // return { tx1: tx1 + this.radius, ty1, tx2: tx2 - this.radius, ty2 };
+      const sourceX = d.source.x + this.radius;
+      const sourceY = d.source.y;
+      const targetX = d.target.x - this.radius;
+      const targetY = d.target.y;
+
       // calculate the x,y point just outside the node circle
-      const dx = d.target.x - d.source.x;
-      const dy = d.target.y - d.source.y;
+      const dx = targetX - sourceX;
+      const dy = targetY - sourceY;
       const gamma1 = Math.atan2(-dy, -dx);
       const gamma2 = Math.atan2(dy, dx);
-      const tx1 = d.source.x - (Math.cos(gamma1) * this.radius);
-      const ty1 = d.source.y - (Math.sin(gamma1) * this.radius);
-      let tx2 = d.target.x - (Math.cos(gamma2) * (this.radius + 2));
-      let ty2 = d.target.y - (Math.sin(gamma2) * (this.radius + 2));
+      const tx1 = sourceX - (Math.cos(gamma1) * this.radius);
+      const ty1 = sourceY - (Math.sin(gamma1) * this.radius);
+      let tx2 = targetX - (Math.cos(gamma2) * (this.radius + 2));
+      let ty2 = targetY - (Math.sin(gamma2) * (this.radius + 2));
 
-      if (d.target.x >= d.source.x) { // LEFT side of rectangle
-        tx2 = d.target.x - this.radius - 1; // 2 is stroke-width
+      if (targetX >= sourceX) { // LEFT side of rectangle
         const adj = (this.radius * Math.tan(Math.atan2(dy, dx)));
-        if (Math.abs(adj) < this.radius) { // left edge
-          ty2 = d.target.y - (this.radius * Math.tan(Math.atan2(dy, dx)));
-        } else if (d.target.y >= d.source.y) { // top edge
-          ty2 = d.target.y - this.radius - 1;
-          tx2 = d.target.x - (this.radius / Math.tan(Math.atan2(dy, dx)));
+        if (Math.abs(adj) <= this.radius) { // left edge
+          tx2 = targetX - this.radius - 1; // 2 is stroke-width
+          ty2 = targetY - adj;
+        } else if (Math.abs(adj) >= this.radius && targetY >= sourceY) { // top edge
+          ty2 = targetY - this.radius - 1;
+          tx2 = targetX - (this.radius / Math.tan(Math.atan2(dy, dx)));
         } else {
-          ty2 = d.target.y + this.radius + 1;
-          tx2 = d.target.x + (this.radius / Math.tan(Math.atan2(dy, dx)));
+          ty2 = targetY + this.radius + 1;
+          tx2 = targetX + (this.radius / Math.tan(Math.atan2(dy, dx)));
         }
       } else { // RIGHT side of rectangle
-        tx2 = d.target.x + this.radius + 1;
         const adj = (this.radius / Math.tan(Math.atan2(dx, dy)));
-        if (Math.abs(adj) < this.radius) { // right edge
-          ty2 = d.target.y + adj;
-        } else if (d.target.y <= d.source.y) {
-          ty2 = d.target.y + this.radius + 1; // - d.radius - 1;
-          tx2 = d.target.x + (this.radius * Math.tan(Math.atan2(dx, dy)));
+        if (Math.abs(adj) <= this.radius) { // right edge
+          tx2 = targetX + this.radius + 1;
+          ty2 = targetY + adj;
+        } else if (targetY <= sourceY) {
+          ty2 = targetY + this.radius + 1; // - d.radius - 1;
+          tx2 = targetX + (this.radius * Math.tan(Math.atan2(dx, dy)));
         } else {
-          ty2 = d.target.y - this.radius - 1;
-          tx2 = d.target.x - (this.radius * Math.tan(Math.atan2(dx, dy)));
+          ty2 = targetY - this.radius - 1;
+          tx2 = targetX - (this.radius * Math.tan(Math.atan2(dx, dy)));
         }
       }
 
-      return { tx1: tx1 + this.radius, ty1, tx2: tx2 - this.radius, ty2 };
+      return { tx1, ty1, tx2, ty2 };
     },
     ticked() {
       // offset for links outside the radius, to make the arroheads show
@@ -202,15 +210,15 @@ export default {
       .strength(d => d.strength)
       .iterations(this.links.length)
       ;
-    this.forceSimulation.force('x')
-      .strength(0.001)
-      ;
-    this.forceSimulation.force('y')
-      .strength(0.001)
-      ;
-    this.forceSimulation.force('charge')
-      .strength(0.0001)
-      ;
+    // this.forceSimulation.force('x')
+    //   .strength(0.01)
+    //   ;
+    // this.forceSimulation.force('y')
+    //   .strength(0.01)
+    //   ;
+    // this.forceSimulation.force('charge')
+    //   .strength(0.01)
+    //   ;
   },
 };
 </script>
