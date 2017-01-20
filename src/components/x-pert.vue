@@ -26,7 +26,7 @@ export default {
   data() {
     return {
       width: 600,
-      height: 300,
+      height: 600,
       radius: 20,
       linkPathGroup: null,
       nodePathGroup: null,
@@ -50,8 +50,8 @@ export default {
             links.push({
               source: nodesCache[source].index,
               target: nodesCache[target].index,
-              distance: 50,
-              strength: 1,
+              distance: 150,
+              strength: 0.1,
             });
           }
         }
@@ -68,9 +68,36 @@ export default {
       const gamma2 = Math.atan2(dy, dx);
       const tx1 = d.source.x - (Math.cos(gamma1) * this.radius);
       const ty1 = d.source.y - (Math.sin(gamma1) * this.radius);
-      const tx2 = d.target.x - (Math.cos(gamma2) * (this.radius + 2));
-      const ty2 = d.target.y - (Math.sin(gamma2) * (this.radius + 2));
-      return { tx1, ty1, tx2, ty2 };
+      let tx2 = d.target.x - (Math.cos(gamma2) * (this.radius + 2));
+      let ty2 = d.target.y - (Math.sin(gamma2) * (this.radius + 2));
+
+      if (d.target.x >= d.source.x) { // LEFT side of rectangle
+        tx2 = d.target.x - this.radius - 1; // 2 is stroke-width
+        const adj = (this.radius * Math.tan(Math.atan2(dy, dx)));
+        if (Math.abs(adj) < this.radius) { // left edge
+          ty2 = d.target.y - (this.radius * Math.tan(Math.atan2(dy, dx)));
+        } else if (d.target.y >= d.source.y) { // top edge
+          ty2 = d.target.y - this.radius - 1;
+          tx2 = d.target.x - (this.radius / Math.tan(Math.atan2(dy, dx)));
+        } else {
+          ty2 = d.target.y + this.radius + 1;
+          tx2 = d.target.x + (this.radius / Math.tan(Math.atan2(dy, dx)));
+        }
+      } else { // RIGHT side of rectangle
+        tx2 = d.target.x + this.radius + 1;
+        const adj = (this.radius / Math.tan(Math.atan2(dx, dy)));
+        if (Math.abs(adj) < this.radius) { // right edge
+          ty2 = d.target.y + adj;
+        } else if (d.target.y <= d.source.y) {
+          ty2 = d.target.y + this.radius + 1; // - d.radius - 1;
+          tx2 = d.target.x + (this.radius * Math.tan(Math.atan2(dx, dy)));
+        } else {
+          ty2 = d.target.y - this.radius - 1;
+          tx2 = d.target.x - (this.radius * Math.tan(Math.atan2(dx, dy)));
+        }
+      }
+
+      return { tx1: tx1 + this.radius, ty1, tx2: tx2 - this.radius, ty2 };
     },
     ticked() {
       // offset for links outside the radius, to make the arroheads show
@@ -82,6 +109,9 @@ export default {
         ;
       this.nodePathGroup
         .attr('transform', d => `translate(${[d.x, d.y]})`)
+        .selectAll('text')
+        // .style('font-size', '0.3em')
+        // .text(d => `${d.id} ${d.x.toPrecision(5)},${d.y.toPrecision(5)}`)
         ;
     },
     dragStart(d) {
@@ -143,11 +173,12 @@ export default {
         .on('end', this.dragEnd)
       )
       ;
-    // NODES! (circles)
-    this.nodePathGroup.append('circle')
-      .attr('r', d => d.r)
+    // NODES! (rectangles)
+    this.nodePathGroup.append('rect')
+      .attr('width', d => d.r * 4)
+      .attr('height', d => d.r * 2)
+      .attr('transform', d => `translate(-${2 * d.r}, -${d.r})`)
       .attr('fill', 'lightblue')
-      .attr('stroke', 'black')
       ;
     // NODES! (labels)
     this.nodePathGroup
@@ -172,13 +203,13 @@ export default {
       .iterations(this.links.length)
       ;
     this.forceSimulation.force('x')
-      .strength(0.01)
+      .strength(0.001)
       ;
     this.forceSimulation.force('y')
-      .strength(0.01)
+      .strength(0.001)
       ;
     this.forceSimulation.force('charge')
-      .strength(0.001)
+      .strength(0.0001)
       ;
   },
 };
