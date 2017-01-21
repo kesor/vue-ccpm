@@ -60,10 +60,7 @@ export default {
     },
   },
   methods: {
-    deltaRadius(d) {
-      // TODO: Change target and source before calculating things,
-      // since the rectangle is now transposed ...
-      // return { tx1: tx1 + this.radius, ty1, tx2: tx2 - this.radius, ty2 };
+    deltaSourceRadius(d) {
       const sourceX = d.source.x + this.radius;
       const sourceY = d.source.y;
       const targetX = d.target.x - this.radius;
@@ -73,47 +70,35 @@ export default {
       const dx = targetX - sourceX;
       const dy = targetY - sourceY;
       const gamma1 = Math.atan2(-dy, -dx);
-      const gamma2 = Math.atan2(dy, dx);
-      const tx1 = sourceX - (Math.cos(gamma1) * this.radius);
-      const ty1 = sourceY - (Math.sin(gamma1) * this.radius);
-      let tx2 = targetX - (Math.cos(gamma2) * (this.radius + 2));
-      let ty2 = targetY - (Math.sin(gamma2) * (this.radius + 2));
+      const tx = sourceX - (Math.cos(gamma1) * this.radius);
+      const ty = sourceY - (Math.sin(gamma1) * this.radius);
+      return { tx, ty };
+    },
+    deltaTargetRadius(d) {
+      const sourceX = d.source.x + this.radius;
+      const sourceY = d.source.y;
+      const targetX = d.target.x - this.radius;
+      const targetY = d.target.y;
 
-      if (targetX >= sourceX) { // LEFT side of rectangle
-        const adj = (this.radius * Math.tan(Math.atan2(dy, dx)));
-        if (Math.abs(adj) <= this.radius) { // left edge
-          tx2 = targetX - this.radius - 1; // 2 is stroke-width
-          ty2 = targetY - adj;
-        } else if (Math.abs(adj) >= this.radius && targetY >= sourceY) { // top edge
-          ty2 = targetY - this.radius - 1;
-          tx2 = targetX - (this.radius / Math.tan(Math.atan2(dy, dx)));
-        } else {
-          ty2 = targetY + this.radius + 1;
-          tx2 = targetX + (this.radius / Math.tan(Math.atan2(dy, dx)));
-        }
-      } else { // RIGHT side of rectangle
-        const adj = (this.radius / Math.tan(Math.atan2(dx, dy)));
-        if (Math.abs(adj) <= this.radius) { // right edge
-          tx2 = targetX + this.radius + 1;
-          ty2 = targetY + adj;
-        } else if (targetY <= sourceY) {
-          ty2 = targetY + this.radius + 1; // - d.radius - 1;
-          tx2 = targetX + (this.radius * Math.tan(Math.atan2(dx, dy)));
-        } else {
-          ty2 = targetY - this.radius - 1;
-          tx2 = targetX - (this.radius * Math.tan(Math.atan2(dx, dy)));
-        }
-      }
+      const dx = targetX - sourceX;
+      const dy = targetY - sourceY;
+      const radius = this.radius + 2; // 2 is stroke width
+      const scale = Math.hypot(dx, dy) / Math.hypot(
+        radius,
+        radius * (Math.abs(dy / dx) < 1 ? dy / dx : dx / dy)
+      );
+      const tx = targetX - (dx / scale);
+      const ty = targetY - (dy / scale);
 
-      return { tx1, ty1, tx2, ty2 };
+      return { tx, ty };
     },
     ticked() {
       // offset for links outside the radius, to make the arroheads show
       this.linkPathGroup
-        .attr('x1', d => this.deltaRadius(d).tx1)
-        .attr('y1', d => this.deltaRadius(d).ty1)
-        .attr('x2', d => this.deltaRadius(d).tx2)
-        .attr('y2', d => this.deltaRadius(d).ty2)
+        .attr('x1', d => this.deltaSourceRadius(d).tx)
+        .attr('y1', d => this.deltaSourceRadius(d).ty)
+        .attr('x2', d => this.deltaTargetRadius(d).tx)
+        .attr('y2', d => this.deltaTargetRadius(d).ty)
         ;
       this.nodePathGroup
         .attr('transform', d => `translate(${[d.x, d.y]})`)
