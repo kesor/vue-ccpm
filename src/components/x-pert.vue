@@ -146,7 +146,7 @@ export default {
     // event handler when this component is mounted for the first time!
     this.forceSimulation = d3.forceSimulation(this.nodes)
       .force('center', d3.forceCenter(this.width / 2, this.height / 2))
-      .force('x', d3.forceX(this.width / 2))
+      .force('x', d3.forceX())
       .force('y', d3.forceY(this.height / 2))
       .force('links', d3.forceLink())
       .force('collide', d3.forceCollide(d => d.r + 8))
@@ -210,12 +210,12 @@ export default {
       .strength(d => d.strength)
       .iterations(this.links.length)
       ;
-    // this.forceSimulation.force('x')
-    //   .strength(0.01)
-    //   ;
-    // this.forceSimulation.force('y')
-    //   .strength(0.01)
-    //   ;
+    this.forceSimulation.force('x')
+      .x(d => (this.width / this.links.length) * (d.index + 1))
+      ;
+    this.forceSimulation.force('y')
+      .strength(0.01)
+      ;
     // this.forceSimulation.force('charge')
     //   .strength(0.01)
     //   ;
