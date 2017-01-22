@@ -85,7 +85,7 @@ export default {
       const radius = this.radius + 2; // 2 is stroke width
       const scale = Math.hypot(dx, dy) / Math.hypot(
         radius,
-        radius * (Math.abs(dy / dx) < 1 ? dy / dx : dx / dy)
+        radius * (Math.abs(dy / dx) < 1 ? dy / dx : dx / dy),
       );
       const tx = targetX - (dx / scale);
       const ty = targetY - (dy / scale);
@@ -160,11 +160,11 @@ export default {
       .enter()
       .append('g')
       .classed('node', true)
-      .call(d3.drag()
-        .on('start', this.dragStart)
-        .on('drag', this.dragProgress)
-        .on('end', this.dragEnd)
-      )
+      .call(
+        d3.drag()
+          .on('start', this.dragStart)
+          .on('drag', this.dragProgress)
+          .on('end', this.dragEnd))
       ;
     // NODES! (rectangles)
     this.nodePathGroup.append('rect')
