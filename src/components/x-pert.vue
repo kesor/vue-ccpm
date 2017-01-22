@@ -20,6 +20,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import * as d3 from 'd3';
+import sameLevelForce from '../lib/d3-force/sameLevel';
 
 export default {
   name: 'x-pert',
@@ -131,8 +132,9 @@ export default {
     // event handler when this component is mounted for the first time!
     this.forceSimulation = d3.forceSimulation(this.nodes)
       .force('center', d3.forceCenter(this.width / 2, this.height / 2))
-      .force('x', d3.forceX())
-      .force('y', d3.forceY(this.height / 2))
+      .force('sameLevel', sameLevelForce())
+      // .force('x', d3.forceX())
+      // .force('y', d3.forceY())
       .force('links', d3.forceLink())
       .force('collide', d3.forceCollide(d => d.r + 8))
       .force('charge', d3.forceManyBody())
@@ -201,6 +203,15 @@ export default {
     this.forceSimulation.force('y')
       .strength(0.01)
       ;
+    // this.forceSimulation.force('x')
+      // .x(d => d.px)
+      // .strength(1)
+      // .x(d => (this.width / this.links.length) * (d.index + 1))
+      // ;
+    // this.forceSimulation.force('y')
+      // .y(d => d.py)
+      // .strength(1)
+      // ;
     // this.forceSimulation.force('charge')
     //   .strength(0.01)
     //   ;
