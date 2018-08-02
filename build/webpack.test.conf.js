@@ -8,6 +8,7 @@ const baseWebpackConfig = require('./webpack.base.conf')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 const webpackConfig = merge(baseWebpackConfig, {
+  mode: 'test',
   // use inline sourcemap for karma-sourcemap-loader
   module: {
     rules: utils.styleLoaders()
