@@ -8,10 +8,10 @@
 </template>
 
 <script>
-import xTitle from './components/x-title';
-import xNavbar from './components/x-navbar';
-import xTimeline from './components/x-timeline';
-import xProjectview from './components/x-projectview';
+import xTitle from './components/x-title'
+import xNavbar from './components/x-navbar'
+import xTimeline from './components/x-timeline'
+import xProjectview from './components/x-projectview'
 
 export default {
   name: 'app',
@@ -19,9 +19,9 @@ export default {
     'x-title': xTitle,
     'x-navbar': xNavbar,
     'x-timeline': xTimeline,
-    'x-projectview': xProjectview,
-  },
-};
+    'x-projectview': xProjectview
+  }
+}
 </script>
 
 <style lang="scss">

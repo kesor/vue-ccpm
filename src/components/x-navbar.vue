@@ -4,8 +4,8 @@
 
 <script>
 export default {
-  name: 'x-navbar',
-};
+  name: 'x-navbar'
+}
 </script>
 
 <style>

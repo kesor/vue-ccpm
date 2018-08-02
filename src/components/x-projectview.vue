@@ -6,16 +6,16 @@
 </template>
 
 <script>
-import xTasklist from './x-tasklist';
-import xPert from './x-pert';
+import xTasklist from './x-tasklist'
+import xPert from './x-pert'
 
 export default {
   name: 'x-projectview',
   components: {
     xTasklist,
-    xPert,
-  },
-};
+    xPert
+  }
+}
 </script>
 
 <style>

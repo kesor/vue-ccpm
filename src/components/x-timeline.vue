@@ -4,8 +4,8 @@
 
 <script>
 export default {
-  name: 'x-timeline',
-};
+  name: 'x-timeline'
+}
 </script>
 
 <style>

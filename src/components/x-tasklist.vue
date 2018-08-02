@@ -9,33 +9,33 @@
         <th class="length">Length</th>
       </tr>
     </thead>
-    <tbody v-for="task in tasks">
+    <tbody v-for="task in tasks" :key="task.id">
       <tr>
-    	  <th>{{ task.id }}</th>
+        <th>{{ task.id }}</th>
         <td>{{ task.dependon.join(", ") }}</td>
-    	  <td><x-editable :text="task.name"/></td>
+        <td><x-editable :text="task.name"/></td>
         <td><x-editable :text="task.resource.join(', ')"/></td>
-  	    <td><x-editable :text="task.length"/></td>
+        <td><x-editable :text="task.length"/></td>
       </tr>
     </tbody>
   </table>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import xEditable from './x-editable';
+import { mapGetters } from 'vuex'
+import xEditable from './x-editable'
 
 export default {
   name: 'x-tasklist',
   computed: {
     ...mapGetters({
-      tasks: 'tasklist',
-    }),
+      tasks: 'tasklist'
+    })
   },
   components: {
-    xEditable,
-  },
-};
+    xEditable
+  }
+}
 </script>
 
 <style scope lang="scss">

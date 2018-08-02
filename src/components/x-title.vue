@@ -5,15 +5,15 @@
 </template>
 
 <script>
-import xEditable from './x-editable';
+import xEditable from './x-editable'
 
 export default {
   name: 'x-title',
   props: ['text'],
   components: {
-    xEditable,
-  },
-};
+    xEditable
+  }
+}
 </script>
 
 <style>

@@ -9,25 +9,25 @@
 export default {
   name: 'x-editable',
   props: ['text'],
-  data() {
+  data () {
     return {
       shown: true,
-      title: this.text,
-    };
+      title: this.text
+    }
   },
   methods: {
-    toggle() {
+    toggle () {
       if (this.title.length === 0) {
-        this.title = '- empty -';
+        this.title = '- empty -'
       }
-      this.shown = !this.shown;
-      setTimeout(() => this.$refs.input.focus(), 1);
-    },
-  },
-};
+      this.shown = !this.shown
+      setTimeout(() => this.$refs.input.focus(), 1)
+    }
+  }
+}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .editable {
   display: table-cell;
   width: 1600px;
