@@ -1,13 +1,23 @@
+// https://eslint.org/docs/user-guide/configuring
+
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
   parserOptions: {
-    sourceType: 'module'
+    parser: 'babel-eslint'
   },
-  extends: 'airbnb-base',
+  env: {
+    browser: true,
+  },
+  extends: [
+    // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
+    // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
+    'plugin:vue/essential',
+    // https://github.com/standard/standard/blob/master/docs/RULES-en.md
+    'standard'
+  ],
   // required to lint *.vue files
   plugins: [
-    'html'
+    'vue'
   ],
   // check if imports actually resolve
   'settings': {
@@ -19,13 +29,10 @@ module.exports = {
   },
   // add your custom rules here
   'rules': {
-    // don't require .vue extension when importing
-    'import/extensions': ['error', 'always', {
-      'js': 'never',
-      'vue': 'never'
-    }],
+    // allow async-await
+    'generator-star-spacing': 'off',
     'no-param-reassign': [2, { 'props': false }],
     // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
   }
 }
